@@ -1,0 +1,19 @@
+{
+  "name": "windows-fsstat",
+  "version": "0.0.1",
+  "description": "stat module for Windows",
+  "main": "main.js",
+  "scripts": {
+    "compile": "node-gyp rebuild",
+    "start": "main.js",
+    "test": "node tests/index.js"
+  },
+  "keywords": ["windows", "inode", "windows-inode", "windows-fileid", "windows-stats"],
+  "author": "Raffael Sahli <sahli@gyselroth.com>",
+  "license": "MIT",
+  "gypfile": true,
+  "devDependencies": {
+    "nan": "^2.6.1",
+    "node-gyp": "^3.6.0"
+  }
+}
