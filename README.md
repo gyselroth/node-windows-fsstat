@@ -1,5 +1,7 @@
 # node-windows-fsstat
 
+[![Build status](https://ci.appveyor.com/api/projects/status/iikdg1nngoc1272j?svg=true)](https://ci.appveyor.com/project/raffis/node-windows-fsstat)
+
 Alternative fs.statSync(path) for windows based systems. Since Windows does not have inodes and the node fs module
 provides only inodes which are somehow converted numbers from Windows fileId into a posix like inode.
 But this conversion can cause inode conflicts, see https://github.com/nodejs/node/issues/12115.
