@@ -12,7 +12,7 @@
   "author": "Raffael Sahli <sahli@gyselroth.com>",
   "license": "MIT",
   "gypfile": true,
-  "devDependencies": {
+  "dependencies": {
     "nan": "^2.6.1",
     "node-gyp": "^3.6.0"
   }
