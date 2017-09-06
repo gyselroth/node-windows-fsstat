@@ -234,7 +234,7 @@ double hexToDouble(const std::string& hex)
     long long d = 0;
     std::stringstream ss(hex);
     ss >> std::hex >> reinterpret_cast<uint64_t&>(d);
-    return d;
+	return d;
 }
 
 long double largeIntegerToLongDouble(LARGE_INTEGER number)
@@ -253,9 +253,9 @@ long double getMiliTimestamp(LARGE_INTEGER ts)
 }
 
 NAN_METHOD(statSync) {
-	Nan:: HandleScope scope;
-	v8::String::Utf8Value param1(info[0]->ToString());
-	std::string from = std::string(*param1);
+    Nan:: HandleScope scope;
+    v8::String::Utf8Value param1(info[0]->ToString());
+    std::string from = std::string(*param1);
 	
 	string directory;
 	string node;
@@ -280,8 +280,13 @@ NAN_METHOD(statSync) {
 
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	Local<Object> obj = Object::New(isolate);
-  
-	obj->Set(String::NewFromUtf8(isolate, "fileId"), 
+
+	char fileId [50];
+	sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
+
+  	obj->Set(String::NewFromUtf8(isolate, "fileid"), 
+		String::NewFromUtf8(isolate, fileId));
+	obj->Set(String::NewFromUtf8(isolate, "ino"), 
 		Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
 	obj->Set(String::NewFromUtf8(isolate, "size"), 
 		Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
