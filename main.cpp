@@ -174,7 +174,7 @@ typedef NTSTATUS (WINAPI *PZW_QUERY_DIRECTORY_FILE) (HANDLE FileHandle,
 PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR pszFileName)
 {
     WCHAR szFileName[32767];
-	
+    
     UNICODE_STRING fn;
     IO_STATUS_BLOCK iosb;
     NTSTATUS status;
@@ -201,7 +201,7 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
         status =  ZwQueryDirectoryFile (hDir, NULL, NULL, NULL, &iosb, byBuffer, sizeof(byBuffer),
                                         FileIdFullDirectoryInformation, TRUE, &fn, FALSE);
         if (NT_SUCCESS(status)) {
-			return pFullInfo;
+            return pFullInfo;
         }
     }
     __finally {
@@ -234,73 +234,73 @@ double hexToDouble(const std::string& hex)
     long long d = 0;
     std::stringstream ss(hex);
     ss >> std::hex >> reinterpret_cast<uint64_t&>(d);
-	return d;
+    return d;
 }
 
 long double largeIntegerToLongDouble(LARGE_INTEGER number)
 {
-	char buffer [50];
-	sprintf(buffer, "%08X%08X", number.HighPart, number.LowPart);
-	long double dec = hexToDouble(buffer);
-	return dec;					
+    char buffer [50];
+    sprintf(buffer, "%08X%08X", number.HighPart, number.LowPart);
+    long double dec = hexToDouble(buffer);
+    return dec;                 
 }
 
 
 long double getMiliTimestamp(LARGE_INTEGER ts)
 {
-	long double mili = WindowsTickToUnixSeconds(largeIntegerToLongDouble(ts)) * 1000;
-	return mili;
+    long double mili = WindowsTickToUnixSeconds(largeIntegerToLongDouble(ts)) * 1000;
+    return mili;
 }
 
 NAN_METHOD(statSync) {
     Nan:: HandleScope scope;
     v8::String::Utf8Value param1(info[0]->ToString());
     std::string from = std::string(*param1);
-	
-	string directory;
-	string node;
-	string path = from.c_str();
-	const size_t last_slash_idx = path.rfind('\\');
+    
+  string directory;
+    string node;
+    string path = from.c_str();
+    const size_t last_slash_idx = path.rfind('\\');
 
-	if (std::string::npos != last_slash_idx) {
-		directory = path.substr(0, last_slash_idx)+'\\'+'\\';
-		node = path.substr(last_slash_idx+1);
-	}
+    if (std::string::npos != last_slash_idx) {
+        directory = path.substr(0, last_slash_idx)+'\\'+'\\';
+        node = path.substr(last_slash_idx+1);
+    }
 
-	std::wstring tmp_directory = s2ws(directory);
-	LPCWSTR w_directory = tmp_directory.c_str();
+    std::wstring tmp_directory = s2ws(directory);
+    LPCWSTR w_directory = tmp_directory.c_str();
 
-	std::wstring tmp_node = s2ws(node);
-	LPCWSTR w_node = tmp_node.c_str();
+    std::wstring tmp_node = s2ws(node);
+    LPCWSTR w_node = tmp_node.c_str();
 
-	//std::printf("%ls", w_directory);
-	//std::printf("%ls", w_node);
-	
-	PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
+    //std::printf("%ls", w_directory);
+    //std::printf("%ls", w_node);
+    
+    PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
 
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	Local<Object> obj = Object::New(isolate);
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    Local<Object> obj = Object::New(isolate);
 
-	char fileId [50];
-	sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
+    char fileId [50];
+    sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
 
-  	obj->Set(String::NewFromUtf8(isolate, "fileid"), 
-		String::NewFromUtf8(isolate, fileId));
-	obj->Set(String::NewFromUtf8(isolate, "ino"), 
-		Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
-	obj->Set(String::NewFromUtf8(isolate, "size"), 
-		Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
-	obj->Set(String::NewFromUtf8(isolate, "atime"), 
+    obj->Set(String::NewFromUtf8(isolate, "fileid"), 
+        String::NewFromUtf8(isolate, fileId));
+    obj->Set(String::NewFromUtf8(isolate, "ino"), 
+        Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
+    obj->Set(String::NewFromUtf8(isolate, "size"), 
+        Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
+    obj->Set(String::NewFromUtf8(isolate, "atime"), 
         Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
-	obj->Set(String::NewFromUtf8(isolate, "mtime"), 
+    obj->Set(String::NewFromUtf8(isolate, "mtime"), 
         Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
-	obj->Set(String::NewFromUtf8(isolate, "ctime"), 
+    obj->Set(String::NewFromUtf8(isolate, "ctime"), 
         Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
-	obj->Set(String::NewFromUtf8(isolate, "directory"), 
+    obj->Set(String::NewFromUtf8(isolate, "directory"), 
         Boolean::New(isolate, (stats->FileAttributes == FILE_ATTRIBUTE_DIRECTORY)));
-	obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
-        Boolean::New(isolate, (stats->FileAttributes == FILE_ATTRIBUTE_REPARSE_POINT)));		
-		
+    obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
+        Boolean::New(isolate, (stats->FileAttributes == FILE_ATTRIBUTE_REPARSE_POINT)));        
+        
     info.GetReturnValue().Set(obj);
 }
 
