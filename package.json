@@ -8,7 +8,13 @@
     "start": "main.js",
     "test": "node tests/index.js"
   },
-  "keywords": ["windows", "inode", "windows-inode", "windows-fileid", "windows-stats"],
+  "keywords": [
+    "windows",
+    "inode",
+    "windows-inode",
+    "windows-fileid",
+    "windows-stats"
+  ],
   "author": "Raffael Sahli <sahli@gyselroth.com>",
   "license": "MIT",
   "gypfile": true,

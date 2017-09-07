@@ -189,8 +189,7 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
         hDir = CreateFileW (pszDirName, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (hDir == INVALID_HANDLE_VALUE) {
-            _tprintf(TEXT("Can't open directory '%ls': Error %d\n"), pszDirName, GetLastError());
-            __leave;
+			throw std::exception("ENOENT: no such file or directory");
         }
 
         lstrcpyW (szFileName, pszFileName);
@@ -202,7 +201,9 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
                                         FileIdFullDirectoryInformation, TRUE, &fn, FALSE);
         if (NT_SUCCESS(status)) {
             return pFullInfo;
-        }
+        } else {
+			throw std::exception("ENOENT: no such file or directory");
+		}
     }
     __finally {
         if (hDir != INVALID_HANDLE_VALUE)
@@ -245,14 +246,13 @@ long double largeIntegerToLongDouble(LARGE_INTEGER number)
     return dec;                 
 }
 
-
 long double getMiliTimestamp(LARGE_INTEGER ts)
 {
     long double mili = WindowsTickToUnixSeconds(largeIntegerToLongDouble(ts)) * 1000;
     return mili;
 }
 
-NAN_METHOD(statSync) {
+NAN_METHOD(lstatSync) {
     Nan:: HandleScope scope;
     v8::String::Utf8Value param1(info[0]->ToString());
     std::string from = std::string(*param1);
@@ -275,37 +275,43 @@ NAN_METHOD(statSync) {
 
     //std::printf("%ls", w_directory);
     //std::printf("%ls", w_node);
-    
-    PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
 
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    Local<Object> obj = Object::New(isolate);
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    char fileId [50];
-    sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
+	try {
+		PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
+		Local<Object> obj = Object::New(isolate);
 
-    obj->Set(String::NewFromUtf8(isolate, "fileid"), 
-        String::NewFromUtf8(isolate, fileId));
-    obj->Set(String::NewFromUtf8(isolate, "ino"), 
-        Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
-    obj->Set(String::NewFromUtf8(isolate, "size"), 
-        Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
-    obj->Set(String::NewFromUtf8(isolate, "atime"), 
-        Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
-    obj->Set(String::NewFromUtf8(isolate, "mtime"), 
-        Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
-    obj->Set(String::NewFromUtf8(isolate, "ctime"), 
-        Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
-    obj->Set(String::NewFromUtf8(isolate, "directory"), 
-        Boolean::New(isolate, (stats->FileAttributes == FILE_ATTRIBUTE_DIRECTORY)));
-    obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
-        Boolean::New(isolate, (stats->FileAttributes == FILE_ATTRIBUTE_REPARSE_POINT)));        
-        
-    info.GetReturnValue().Set(obj);
+		char fileId [50];
+		sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
+
+		obj->Set(String::NewFromUtf8(isolate, "fileid"), 
+			String::NewFromUtf8(isolate, fileId));
+		obj->Set(String::NewFromUtf8(isolate, "ino"), 
+			Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
+		obj->Set(String::NewFromUtf8(isolate, "size"), 
+			Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
+		obj->Set(String::NewFromUtf8(isolate, "atime"), 
+			Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
+		obj->Set(String::NewFromUtf8(isolate, "mtime"), 
+			Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
+		obj->Set(String::NewFromUtf8(isolate, "ctime"), 
+			Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
+		obj->Set(String::NewFromUtf8(isolate, "directory"), 
+			Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)));
+		obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
+			Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)));        
+			
+		info.GetReturnValue().Set(obj);
+	} catch(std::exception& e) {
+		isolate->ThrowException(String::NewFromUtf8(isolate, "Error: ENOENT: No such file or directory"));
+		return info.GetReturnValue().Set(Undefined());
+	}
+
 }
 
 NAN_MODULE_INIT(Initialize) {
-    NAN_EXPORT(target, statSync);
+	NAN_EXPORT(target, lstatSync);
 }
 
 NODE_MODULE(addon, Initialize);
