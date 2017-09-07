@@ -11,10 +11,15 @@ this module provides besides the attribute "ino" an attribute called "fileid" wh
 
 See node issue [#12115](https://github.com/nodejs/node/issues/12115) for further information.
 
+## Install
+```
+npm --save install @gyselroth/windows-fsstat
+```
+
 ## Usage
 
 ```javascript
-var windowsFs = require('windows-fsstat');
+var windowsFs = require('@gyselroth/windows-fsstat');
 console.log(windowsFs.statSync('C:\\windows'));
 
 { fileid: '0x00020000000070FD',
