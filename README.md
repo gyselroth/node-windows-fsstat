@@ -1,6 +1,9 @@
 # node-windows-fsstat
 
 [![Build status](https://ci.appveyor.com/api/projects/status/iikdg1nngoc1272j?svg=true)](https://ci.appveyor.com/project/raffis/node-windows-fsstat)
+[![npm](https://img.shields.io/npm/v/@gyselroth/windows-fsstat.svg)](https://www.npmjs.com/package/@gyselroth/windows-fsstat)
+[![GitHub release](https://img.shields.io/github/release/gyselroth/windows-fsstat.svg)](https://github.com/gyselroth/windows-fsstat/releases)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/gyselroth/windows-fsstat/master/LICENSE)
 
 Alternative fs.statSync(path) for windows based systems. Since Windows does not have inodes and the node fs module
 provides only an inode property which is a converted integer from the 64bit fileId (Windows equal to posix inode) integer.
