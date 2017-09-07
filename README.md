@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/iikdg1nngoc1272j?svg=true)](https://ci.appveyor.com/project/raffis/node-windows-fsstat)
 [![npm](https://img.shields.io/npm/v/@gyselroth/windows-fsstat.svg)](https://www.npmjs.com/package/@gyselroth/windows-fsstat)
-[![GitHub release](https://img.shields.io/github/release/gyselroth/windows-fsstat.svg)](https://github.com/gyselroth/windows-fsstat/releases)
+[![GitHub release](https://img.shields.io/github/release/gyselroth/node-windows-fsstat.svg)](https://github.com/gyselroth/node-windows-fsstat/releases)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/gyselroth/windows-fsstat/master/LICENSE)
 
 Alternative fs.lstatSync(path) for windows based systems. Since Windows does not have inodes and the node fs module
