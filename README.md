@@ -13,7 +13,7 @@ See node issue [#12115](https://github.com/nodejs/node/issues/12115) for further
 
 ## Install
 ```
-npm --save install @gyselroth/windows-fsstat
+npm install --save @gyselroth/windows-fsstat
 ```
 
 ## Usage
