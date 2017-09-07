@@ -13,7 +13,6 @@ install:
   - npm set progress=false
   - npm prune
   - npm install
-  - npm run compile
 
 test_script:
   - npm run test
