@@ -1,12 +1,13 @@
 {
   "name": "@gyselroth/windows-fsstat",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "stat module for Windows",
   "main": "main.js",
   "scripts": {
     "compile": "node-gyp rebuild",
     "start": "main.js",
-    "test": "node tests/index.js"
+    "test": "node tests/index.js",
+    "install": "node-gyp rebuild"
   },
   "keywords": [
     "windows",
@@ -21,5 +22,19 @@
   "dependencies": {
     "nan": "^2.6.1",
     "node-gyp": "^3.6.0"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "mocha": "^3.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyselroth/node-windows-fsstat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gyselroth/node-windows-fsstat/issues"
+  },
+  "homepage": "https://github.com/gyselroth/node-windows-fsstat#readme"
 }
