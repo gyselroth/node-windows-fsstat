@@ -5,7 +5,7 @@
 [![GitHub release](https://img.shields.io/github/release/gyselroth/windows-fsstat.svg)](https://github.com/gyselroth/windows-fsstat/releases)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/gyselroth/windows-fsstat/master/LICENSE)
 
-Alternative fs.statSync(path) for windows based systems. Since Windows does not have inodes and the node fs module
+Alternative fs.lstatSync(path) for windows based systems. Since Windows does not have inodes and the node fs module
 provides only an inode property which is a converted integer from the 64bit fileId (Windows equal to posix inode) integer.
 But commonly known javascript can not handle 64bit integer, therefore the conversion into an integer can cause inode collisions
 which can be fatal.
@@ -23,7 +23,7 @@ npm install --save @gyselroth/windows-fsstat
 
 ```javascript
 var windowsFs = require('@gyselroth/windows-fsstat');
-console.log(windowsFs.statSync('C:\\windows'));
+console.log(windowsFs.lstatSync('C:\\windows'));
 
 { fileid: '0x00020000000070FD',
   ino: 562949953450237,
