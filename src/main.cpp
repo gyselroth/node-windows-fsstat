@@ -290,7 +290,7 @@ NAN_METHOD(lstatSync) {
 		obj->Set(String::NewFromUtf8(isolate, "ino"), 
 			Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
 		obj->Set(String::NewFromUtf8(isolate, "size"), 
-			Number::New(isolate, largeIntegerToLongDouble(stats->AllocationSize)));
+			Number::New(isolate, largeIntegerToLongDouble(stats->EndOfFile)));
 		obj->Set(String::NewFromUtf8(isolate, "atime"), 
 			Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
 		obj->Set(String::NewFromUtf8(isolate, "mtime"), 
