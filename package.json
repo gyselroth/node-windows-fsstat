@@ -16,6 +16,7 @@
     "windows-fileid",
     "windows-stats"
   ],
+  "os": ["win32"],
   "author": "Raffael Sahli <sahli@gyselroth.com>",
   "license": "MIT",
   "gypfile": true,
