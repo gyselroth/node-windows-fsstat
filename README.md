@@ -10,7 +10,7 @@ provides only an inode property which is a converted integer from the 64bit file
 But commonly known javascript can not handle 64bit integer, therefore the conversion into an integer can cause inode collisions
 which can be fatal.
 There is absolutely no reason that inode must be an integer. An inode or fileId is just an identifier and can be anything. Therefore
-this module provides besides the attribute "ino" an attribute called "fileid" which is HEX representation (string) of the windows fileId.
+this module provides besides the attribute "ino" an attribute called "fileid" which is a HEX representation (string) of the windows fileId.
 
 See node issue [#12115](https://github.com/nodejs/node/issues/12115) for further information.
 
