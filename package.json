@@ -1,6 +1,6 @@
 {
   "name": "@gyselroth/windows-fsstat",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "stat module for Windows",
   "main": "main.js",
   "scripts": {
