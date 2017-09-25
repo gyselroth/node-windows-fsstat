@@ -9,3 +9,7 @@ try {
 } catch(Err) {
   console.log(Err);
 }
+
+fs.mkdirSync('C:\\test ä');
+console.log(windowsFs.lstatSync('C:\\test ä'));
+fs.rmdirSync('C:\\test ä');

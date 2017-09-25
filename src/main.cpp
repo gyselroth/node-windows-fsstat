@@ -170,7 +170,7 @@ typedef NTSTATUS (WINAPI *PZW_QUERY_DIRECTORY_FILE) (HANDLE FileHandle,
     PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass,
     BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
 
-//Thanks to Oleg https://stackoverflow.com/questions/3878517/how-to-get-fileindex-without-using-file-handle
+//https://stackoverflow.com/questions/3878517/how-to-get-fileindex-without-using-file-handle
 PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR pszFileName)
 {
     WCHAR szFileName[32767];
@@ -211,17 +211,14 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
     }
 }
 
-//thanks to Toran Billups https://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
-std::wstring s2ws(const std::string& s)
+//https://stackoverflow.com/questions/215963/how-do-you-properly-use-widechartomultibyte
+std::wstring utf8_decode(const std::string &str)
 {
-    int len;
-    int slength = (int)s.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
-    wchar_t* buf = new wchar_t[len];
-    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-    std::wstring r(buf);
-    delete[] buf;
-    return r;
+    if( str.empty() ) return std::wstring();
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo( size_needed, 0 );
+    MultiByteToWideChar                  (CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
 }
 
 long double WindowsTickToUnixSeconds(long long windowsTicks)
@@ -267,12 +264,12 @@ NAN_METHOD(lstatSync) {
         node = path.substr(last_slash_idx+1);
     }
 
-    std::wstring tmp_directory = s2ws(directory);
+    std::wstring tmp_directory = utf8_decode(directory);
     LPCWSTR w_directory = tmp_directory.c_str();
 
-    std::wstring tmp_node = s2ws(node);
+    std::wstring tmp_node = utf8_decode(node);
     LPCWSTR w_node = tmp_node.c_str();
-
+    	
 	  v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	  try {
@@ -304,6 +301,7 @@ NAN_METHOD(lstatSync) {
 		  isolate->ThrowException(String::NewFromUtf8(isolate, "Error: ENOENT: No such file or directory"));
 		  return info.GetReturnValue().Set(Undefined());
 	  }
+	  
 }
 
 NAN_MODULE_INIT(Initialize) {
