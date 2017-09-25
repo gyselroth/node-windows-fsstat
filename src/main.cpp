@@ -212,7 +212,7 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
 }
 
 //https://stackoverflow.com/questions/215963/how-do-you-properly-use-widechartomultibyte
-std::wstring utf8_decode(const std::string &str)
+std::wstring utf8Decode(const std::string &str)
 {
     if( str.empty() ) return std::wstring();
     int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
@@ -264,44 +264,43 @@ NAN_METHOD(lstatSync) {
         node = path.substr(last_slash_idx+1);
     }
 
-    std::wstring tmp_directory = utf8_decode(directory);
+    std::wstring tmp_directory = utf8Decode(directory);
     LPCWSTR w_directory = tmp_directory.c_str();
 
-    std::wstring tmp_node = utf8_decode(node);
+    std::wstring tmp_node = utf8Decode(node);
     LPCWSTR w_node = tmp_node.c_str();
     	
 	  v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	  try {
-		  PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
-		  Local<Object> obj = Object::New(isolate);
+        PFILE_ID_FULL_DIR_INFORMATION stats = DumpFileInformation (w_directory, w_node);
+        Local<Object> obj = Object::New(isolate);
 
-		  char fileId [50];
-		  sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
+        char fileId [50];
+        sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
 
-		  obj->Set(String::NewFromUtf8(isolate, "fileid"), 
-			  String::NewFromUtf8(isolate, fileId));
-		  obj->Set(String::NewFromUtf8(isolate, "ino"), 
-			  Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
-		  obj->Set(String::NewFromUtf8(isolate, "size"), 
-			  Number::New(isolate, largeIntegerToLongDouble(stats->EndOfFile)));
-		  obj->Set(String::NewFromUtf8(isolate, "atime"), 
-			  Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
-		  obj->Set(String::NewFromUtf8(isolate, "mtime"), 
-			  Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
-		  obj->Set(String::NewFromUtf8(isolate, "ctime"), 
-			  Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
-		  obj->Set(String::NewFromUtf8(isolate, "directory"), 
-			  Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)));
-		  obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
-			  Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)));        
+        obj->Set(String::NewFromUtf8(isolate, "fileid"), 
+          String::NewFromUtf8(isolate, fileId));
+        obj->Set(String::NewFromUtf8(isolate, "ino"), 
+          Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
+        obj->Set(String::NewFromUtf8(isolate, "size"), 
+          Number::New(isolate, largeIntegerToLongDouble(stats->EndOfFile)));
+        obj->Set(String::NewFromUtf8(isolate, "atime"), 
+          Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
+        obj->Set(String::NewFromUtf8(isolate, "mtime"), 
+          Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
+        obj->Set(String::NewFromUtf8(isolate, "ctime"), 
+          Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
+        obj->Set(String::NewFromUtf8(isolate, "directory"), 
+          Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)));
+        obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
+          Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)));        
 			
-		  info.GetReturnValue().Set(obj);
-	  } catch(std::exception& e) {
-		  isolate->ThrowException(String::NewFromUtf8(isolate, "Error: ENOENT: No such file or directory"));
-		  return info.GetReturnValue().Set(Undefined());
-	  }
-	  
+        info.GetReturnValue().Set(obj);
+    } catch(std::exception& e) {
+        isolate->ThrowException(String::NewFromUtf8(isolate, "Error: ENOENT: No such file or directory"));
+        return info.GetReturnValue().Set(Undefined());
+    } 
 }
 
 NAN_MODULE_INIT(Initialize) {
