@@ -14,6 +14,8 @@ this module provides besides the attribute "ino" an attribute called "fileid" wh
 
 See node issue [#12115](https://github.com/nodejs/node/issues/12115) for further information.
 
+>**Note**: There is now a fix for this issue in Node.js, `inoString` can be used.
+
 ## Install
 ```
 npm install --save @gyselroth/windows-fsstat
