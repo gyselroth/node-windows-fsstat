@@ -174,13 +174,16 @@ typedef NTSTATUS (WINAPI *PZW_QUERY_DIRECTORY_FILE) (HANDLE FileHandle,
 PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR pszFileName)
 {
     WCHAR szFileName[32767];
-    
+
+    /*std::wstring mywstring(pszDirName);
+    std::wstring concatted_stdstr = L"\\\\?\\" + mywstring;
+    LPCWSTR concatted = concatted_stdstr.c_str();*/
+
     UNICODE_STRING fn;
     IO_STATUS_BLOCK iosb;
     NTSTATUS status;
     LONGLONG byBuffer[(32767+sizeof(FILE_ID_FULL_DIR_INFORMATION))/sizeof(LONGLONG)];
     PFILE_ID_FULL_DIR_INFORMATION pFullInfo = (PFILE_ID_FULL_DIR_INFORMATION)byBuffer;
-    //PFILE_ID_GLOBAL_TX_DIR_INFORMATION pGlobalTxDirInfo = (PFILE_ID_GLOBAL_TX_DIR_INFORMATION)byBuffer;
     HANDLE hDir = INVALID_HANDLE_VALUE;
     PZW_QUERY_DIRECTORY_FILE ZwQueryDirectoryFile = (PZW_QUERY_DIRECTORY_FILE)
         GetProcAddress(GetModuleHandle("ntdll.dll"),"ZwQueryDirectoryFile");
@@ -189,7 +192,7 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
         hDir = CreateFileW (pszDirName, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (hDir == INVALID_HANDLE_VALUE) {
-			throw std::exception("ENOENT: no such file or directory");
+	          throw std::exception("ENOENT: no such file or directory (INVALID_HANDLE_VALUE)");
         }
 
         lstrcpyW (szFileName, pszFileName);
@@ -202,8 +205,8 @@ PFILE_ID_FULL_DIR_INFORMATION DumpFileInformation (LPCWSTR pszDirName, LPCWSTR p
         if (NT_SUCCESS(status)) {
             return pFullInfo;
         } else {
-			throw std::exception("ENOENT: no such file or directory");
-		}
+			      throw std::exception("ENOENT: no such file or directory");
+		    }
     }
     __finally {
         if (hDir != INVALID_HANDLE_VALUE)
@@ -240,7 +243,7 @@ long double largeIntegerToLongDouble(LARGE_INTEGER number)
     char buffer [50];
     sprintf(buffer, "%08X%08X", number.HighPart, number.LowPart);
     long double dec = hexToDouble(buffer);
-    return dec;                 
+    return dec;
 }
 
 long double getMiliTimestamp(LARGE_INTEGER ts)
@@ -253,14 +256,19 @@ NAN_METHOD(lstatSync) {
     Nan:: HandleScope scope;
     v8::String::Utf8Value param1(info[0]->ToString());
     std::string from = std::string(*param1);
-    
-    string directory;
+
+    std::string directory;
     string node;
     string path = from.c_str();
     const size_t last_slash_idx = path.rfind('\\');
 
     if (std::string::npos != last_slash_idx) {
-        directory = path.substr(0, last_slash_idx)+'\\'+'\\';
+        directory = path.substr(0, last_slash_idx)+'\\';
+
+        if(directory.substr(0,4) != "\\\\?\\") {
+          directory = "\\\\?\\"+directory;
+        }
+
         node = path.substr(last_slash_idx+1);
     }
 
@@ -269,7 +277,7 @@ NAN_METHOD(lstatSync) {
 
     std::wstring tmp_node = utf8Decode(node);
     LPCWSTR w_node = tmp_node.c_str();
-    	
+
 	  v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	  try {
@@ -279,28 +287,28 @@ NAN_METHOD(lstatSync) {
         char fileId [50];
         sprintf(fileId, "0x%08X%08X", stats->FileId.HighPart, stats->FileId.LowPart);
 
-        obj->Set(String::NewFromUtf8(isolate, "fileid"), 
+        obj->Set(String::NewFromUtf8(isolate, "fileid"),
           String::NewFromUtf8(isolate, fileId));
-        obj->Set(String::NewFromUtf8(isolate, "ino"), 
+        obj->Set(String::NewFromUtf8(isolate, "ino"),
           Number::New(isolate, largeIntegerToLongDouble(stats->FileId)));
-        obj->Set(String::NewFromUtf8(isolate, "size"), 
+        obj->Set(String::NewFromUtf8(isolate, "size"),
           Number::New(isolate, largeIntegerToLongDouble(stats->EndOfFile)));
-        obj->Set(String::NewFromUtf8(isolate, "atime"), 
+        obj->Set(String::NewFromUtf8(isolate, "atime"),
           Date::New(isolate, getMiliTimestamp(stats->LastAccessTime)));
-        obj->Set(String::NewFromUtf8(isolate, "mtime"), 
+        obj->Set(String::NewFromUtf8(isolate, "mtime"),
           Date::New(isolate, getMiliTimestamp(stats->LastWriteTime)));
-        obj->Set(String::NewFromUtf8(isolate, "ctime"), 
+        obj->Set(String::NewFromUtf8(isolate, "ctime"),
           Date::New(isolate, getMiliTimestamp(stats->CreationTime)));
-        obj->Set(String::NewFromUtf8(isolate, "directory"), 
+        obj->Set(String::NewFromUtf8(isolate, "directory"),
           Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)));
-        obj->Set(String::NewFromUtf8(isolate, "symbolicLink"), 
-          Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)));        
-			
+        obj->Set(String::NewFromUtf8(isolate, "symbolicLink"),
+          Boolean::New(isolate, (stats->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)));
+
         info.GetReturnValue().Set(obj);
     } catch(std::exception& e) {
-        isolate->ThrowException(String::NewFromUtf8(isolate, "Error: ENOENT: No such file or directory"));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
         return info.GetReturnValue().Set(Undefined());
-    } 
+    }
 }
 
 NAN_MODULE_INIT(Initialize) {

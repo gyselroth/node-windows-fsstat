@@ -16,11 +16,14 @@
     "windows-fileid",
     "windows-stats"
   ],
-  "os": ["win32"],
+  "os": [
+    "win32"
+  ],
   "author": "Raffael Sahli <sahli@gyselroth.com>",
   "license": "MIT",
   "gypfile": true,
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "nan": "^2.6.1",
     "node-gyp": "^3.6.0"
   },
