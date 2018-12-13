@@ -1,12 +1,12 @@
 {
   "name": "@gyselroth/windows-fsstat",
-  "version": "0.0.6",
-  "description": "stat module for Windows",
+  "version": "0.0.7",
+  "description": "fstat module for Windows (unique inode fix)",
   "main": "main.js",
   "scripts": {
     "compile": "node-gyp rebuild",
     "start": "main.js",
-    "test": "node tests/index.js",
+    "test": "jest",
     "install": "node-gyp rebuild"
   },
   "keywords": [
@@ -23,7 +23,6 @@
   "license": "MIT",
   "gypfile": true,
   "dependencies": {
-    "mkdirp": "^0.5.1",
     "nan": "^2.6.1",
     "node-gyp": "^3.6.0"
   },
@@ -31,7 +30,8 @@
     "test": "tests"
   },
   "devDependencies": {
-    "mocha": "^3.5.0"
+    "jest": "^23.6.0",
+    "mkdirp": "^0.5.1"
   },
   "repository": {
     "type": "git",

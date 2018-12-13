@@ -14,7 +14,7 @@ this module provides besides the attribute "ino" an attribute called "fileid" wh
 
 See node issue [#12115](https://github.com/nodejs/node/issues/12115) for further information.
 
->**Note**: There is now a fix for this issue in Node.js, `inoString` can be used.
+This issue has been fixed by PR [#20220](https://github.com/nodejs/node/pull/20220) (BigInt support) but has only been merged into node.js release >= v10.5.0. If you need to stick with a lower node version for any reason and still need unique inode numbers on Windows go with this package instead.
 
 ## Install
 ```
